@@ -8,7 +8,7 @@ require('dotenv').config()
 require('log-timestamp')
 // Create the configuration
 var config = {
-    channels: ["#aboftytest", ],
+    channels: ["#aboftytest", "#linuxmasterrace" ],
     server: "irc.snoonet.net",
     botName: "aboftybot",
     realName: 'Aboft\'s Node Bot',
@@ -61,7 +61,7 @@ bot.addListener("message", async function (from, to, text, message) {
             bot.say(to, `(${from}), ${numOfLines}`)
             break
     }
-    updateLineCount()
+    (from.includes('bot')) ? false : updateLineCount()
 });
 
 
@@ -104,4 +104,3 @@ bot.addListener('message', async function (from, to, text, message) {
 //         bot.say(to, `Come on in, ${String(nick)}! The COVID-19 is just fine!`)
 //     }
 // })
-
