@@ -12,7 +12,7 @@ const setLineCount = async () => {
 const updateLineCount = async () => {
     const dateCreated = new Date().toDateString().slice(4)
     const lineCountExists = await LineCount.find({dateCreated})
-    if (!lineCountExists) {
+    if (lineCountExists.length < 1) {
         setLineCount()
         return
     }
