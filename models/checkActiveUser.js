@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
-
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/aboftybot", { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
+require('dotenv')
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
 
 const activeUserSchema = new mongoose.Schema({
     user: {type: String, unique: true},

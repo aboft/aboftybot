@@ -3,7 +3,9 @@ const jokes = require('./utils/jokes.js')
 const gtfb = require('./utils/gtfb')
 const getCovidCases = require('./utils/getCovidCases')
 const ActiveUser = require('./models/checkActiveUser')
+const {getLineCount, setLineCount, updateLineCount} = require('./utils/setLineCount')
 require('dotenv').config()
+require('log-timestamp')
 // Create the configuration
 var config = {
     channels: ["#aboftytest", ],
@@ -54,7 +56,12 @@ bot.addListener("message", async function (from, to, text, message) {
             const covidCases = await getCovidCases(text.split(' ').slice(1).join(' '))
             bot.say(to, `${from}, ${covidCases}`)
             break
+        case '.lines':
+            const numOfLines = await getLineCount(text.slice(7))
+            bot.say(to, `(${from}), ${numOfLines}`)
+            break
     }
+    updateLineCount()
 });
 
 
