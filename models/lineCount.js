@@ -4,7 +4,7 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 
 const lineCountSchema = new mongoose.Schema({
     lineCount: {type: Number, default: 1},
-    dateCreated: new Date().toDateString(),
+    dateCreated: String,
     lastModified: { type: Date, default: Date.now }
 })
 
