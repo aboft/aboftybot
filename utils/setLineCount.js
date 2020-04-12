@@ -33,9 +33,10 @@ const getLineCount = async (dateCreated = new Date().toDateString().slice(4)) =>
             return `Unable to find amount of lines said. Ping aboft to fix me, I'm dying.`
         }
         else {
-            return `There have been ${numberOfLines.lineCount} lines said on ${numberOfLines.dateCreated}.`
+            return `There have been ${lines.lineCount} lines said on ${lines.dateCreated}.`
         }
     })
+    return numberOfLines
 }
 
 module.exports = {
