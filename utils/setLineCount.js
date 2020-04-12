@@ -24,22 +24,18 @@ const updateLineCount = async () => {
 
 const getLineCount = async (dateCreated = new Date().toDateString().slice(4)) => {
     dateCreated = new Date(dateCreated).toDateString().slice(4)
-    console.log(dateCreated)
     if (dateCreated == 'lid Date') {
         return `Invalid date format. Please use (MM/DD/YYYY | MM DD YYYY | MM-DD-YYYY | YYYY-MM-DD).`
     }
-    const numberOfLines = await LineCount.find({dateCreated})
-        .then(num => {
-            return num
-        })
-        .catch(err => {
-            console.log('ERROR FINDING NUMBER OF LINES IN DB:\n', err)
-        })
-    if (numberOfLines) { 
-        return `There have been ${numberOfLines.lineCount} lines said on ${numberOfLines.dateCreated}.`
-    } else {
-        return `Unable to find amount of lines said. Ping aboft to fix me, I'm dying.`
-    }
+    const numberOfLines = await LineCount.find({dateCreated}, (err, lines) => {
+        if (err) {
+            console.log('ERROR RETRIEVING LINES FROM DB:\n', err)
+            return `Unable to find amount of lines said. Ping aboft to fix me, I'm dying.`
+        }
+        else {
+            return `There have been ${numberOfLines.lineCount} lines said on ${numberOfLines.dateCreated}.`
+        }
+    })
 }
 
 module.exports = {
