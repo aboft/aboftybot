@@ -1,32 +1,25 @@
-// const LineCount = require('../models/lineCount')
+const LineCount = require('../models/lineCount')
 require('log-timestamp')
 
 const setLineCount = async () => {
     const dateCreated = new Date().toDateString().slice(4)
-    LineCount.create({dateCreated})
-        .then((data) => {
-            console.log(data)
-            data.save()
-        })
-        .catch(err => {
-            console.log(err)
-        })
+    LineCount.create({dateCreated}, (err, data) => {
+        if (err) console.log(err)
+        else console.log(data) && data.save()
+    })
 }
 
 const updateLineCount = async () => {
     const dateCreated = new Date().toDateString().slice(4)
     const lineCountExists = await LineCount.find({dateCreated})
     if (!lineCountExists) {
-        return setLineCount()
+        setLineCount()
+        return
     }
-    const updatedLineCount = await LineCount.findOneAndUpdate({dateCreated}, {$inc: {lineCount: 1} })
-        .then(data => {
-            console.log(`UPDATING LINE COUNT FOR ${dateCreated}`, data)
-            data.save()
-        })
-        .catch(err => {
-            console.log('AN ERROR OCCURED UPDATING LINE COUNT:\n', err)
-        })
+    await LineCount.findOneAndUpdate({dateCreated}, {$inc: {lineCount: 1} }, (err, data) => {
+        if (err) console.log('AN ERROR OCCURED UPDATING LINE COUNT:\n', err)
+        else console.log(`UPDATING LINE COUNT FOR ${dateCreated}`, data) && data.save()
+    })
 }
 
 const getLineCount = async (dateCreated = new Date().toDateString().slice(4)) => {
