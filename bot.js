@@ -21,7 +21,14 @@ var config = {
 };
 
 var bot = new irc.Client(config.server, config.botName, config);
+
+console.log("=================================================\n")
+console.log("		   BOOTING ABOFTYBOT		      \n")
+console.log("=================================================\n")
+
 bot.connect()
+
+
 
 // make a starting time when bot is connecting
 const bufferTime = Date.now()
@@ -85,15 +92,18 @@ bot.addListener('message', async function (from, to, text, message) {
     }
     if (userExists.length > 0) {
         ActiveUser.findOneAndUpdate({ user: from }, { message: text }, (err, updatedMessage) => {
-            err ? console.log(err) : console.log('Updated Message!', updatedMessage) && updatedMessage.save()
+            err ? console.log(err) : console.log('Updated message for user\n', updatedMessage) && updatedMessage.save()
         })
     } else {
         ActiveUser.create({ user: from, message: text }, (err, createdUser) => {
-            err ? console.log(err) : console.log('Created User!', createdUser) && createdUser.save()
+            err ? console.log(err) : console.log('Created user in DB for .active command\n', createdUser) && createdUser.save()
         })
     }
 })
 
+bot.addListener('error', function(message) {
+    console.log("ERROR CRASHING DUE TO: \n ", message);
+});
 
 //disabling join messages but leaving in for future use
 //
@@ -104,3 +114,4 @@ bot.addListener('message', async function (from, to, text, message) {
 //         bot.say(to, `Come on in, ${String(nick)}! The COVID-19 is just fine!`)
 //     }
 // })
+

@@ -7,6 +7,7 @@ const getCovidCases = async (region) => {
     region.trim().toLowerCase() == '' ? region = 'Total' : region
     // set url to search by either country or all
     region == 'Total' ? covidUrl = 'https://www.worldometers.info/coronavirus/?utm_campaign=homeAdvegas1?' : covidUrl = `https://www.worldometers.info/coronavirus/country/${region.split(' ').join('-')}/`
+    console.log("Attempting to fetch COVID-19 cases URL: ", covidUrl)
     const covidCounts = await axios.get(covidUrl).then(res => {
         let covidCases = []
         if (res.request.path == '/404.shtml') {

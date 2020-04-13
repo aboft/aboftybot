@@ -18,7 +18,7 @@ const updateLineCount = async () => {
     }
     await LineCount.findOneAndUpdate({dateCreated}, {$inc: {lineCount: 1} }, (err, data) => {
         if (err) console.log('AN ERROR OCCURED UPDATING LINE COUNT:\n', err)
-        else console.log(`UPDATING LINE COUNT FOR ${dateCreated}`, data) && data.save()
+        else console.log(`UPDATING LINE COUNT FOR ${dateCreated}\n`, data) && data.save()
     })
 }
 
@@ -26,7 +26,7 @@ const getLineCount = async (dateCreated = new Date().toDateString().slice(4)) =>
     dateCreated = new Date(dateCreated).toDateString().slice(4)
     if (dateCreated == 'lid Date') {
         return `Invalid date format. Please use (MM/DD/YYYY | MM DD YYYY | MM-DD-YYYY | YYYY-MM-DD).`
-
+    
     }
     const numberOfLines = await LineCount.findOne({dateCreated}, (err, lines) => {
         if (err) {
@@ -34,14 +34,14 @@ const getLineCount = async (dateCreated = new Date().toDateString().slice(4)) =>
             return
         }
         else {
-            console.log(`ATTEMPTING TO FETCH AMOUNT OF LINES`)
-            return lines
+	    console.log(`ATTEMPTING TO FETCH AMOUNT OF LINES`)
+            return lines 
         }
     })
     if (!numberOfLines) {
-             return `Unable to find amount of lines said. Ping aboft to fix me, I'm dying.`
+	     return `Unable to find amount of lines said for ${dateCreated}`
     } else {
-             return `There were ${numberOfLines.lineCount} lines said on ${numberOfLines.dateCreated}.`
+	     return `There were ${numberOfLines.lineCount} lines said on ${numberOfLines.dateCreated}.`
     }
 }
 
