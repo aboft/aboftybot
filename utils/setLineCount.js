@@ -1,52 +1,59 @@
-const LineCount = require('../models/lineCount')
 require('log-timestamp')
+require('dotenv').config()
+const knex = require('knex')({
+    client: 'mysql',
+    connection: {
+        host: '127.0.0.1',
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB
+    }
+});
 
-const setLineCount = async () => {
-    const dateCreated = new Date().toDateString().slice(4)
-    LineCount.create({dateCreated}, (err, data) => {
-        if (err) console.log(err)
-        else console.log(data) && data.save()
-    })
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
 }
 
-const updateLineCount = async () => {
-    const dateCreated = new Date().toDateString().slice(4)
-    const lineCountExists = await LineCount.find({dateCreated})
-    if (lineCountExists.length < 1) {
-        setLineCount()
-        return
+
+const setLineCount = async (channel) => {
+    const createChannelCount = await knex('line_counts').insert({ channel, count: 1, dateCreated: formatDate(new Date()), lastModified: null })
+    console.log(`CREATED NEW ENTRY IN DB FOR ${channel} ON ${formatDate(new Date())}`)
+};
+
+const updateLineCount = async (channel) => {
+    let channelExists = await knex('line_counts').where({ channel: '#linuxmasterrace', dateCreated: formatDate(new Date()) }).select('channel')
+    if (channelExists.length < 1) {
+        console.log(`${channel} NOT FOUND IN DB. CREATING NEW ENTRY FOR ${channel} ON ${formatDate(new Date())}`)
+        setLineCount(channel)
     }
-    await LineCount.findOneAndUpdate({dateCreated}, {$inc: {lineCount: 1} }, (err, data) => {
-        if (err) console.log('AN ERROR OCCURED UPDATING LINE COUNT:\n', err)
-        else console.log(`UPDATING LINE COUNT FOR ${dateCreated}\n`, data) && data.save()
-    })
+    else {
+        await knex('line_counts').where({channel: '#linuxmasterrace', dateCreated: formatDate(new Date())}).increment('count', 1)
+        console.log(`UPDATING LINE COUNT FOR ${channel} ON ${formatDate(new Date())}`)
+    }
 }
 
-const getLineCount = async (dateCreated = new Date().toDateString().slice(4)) => {
-    dateCreated = new Date(dateCreated).toDateString().slice(4)
-    if (dateCreated == 'lid Date') {
-        return `Invalid date format. Please use (MM/DD/YYYY | MM DD YYYY | MM-DD-YYYY | YYYY-MM-DD).`
-    
-    }
-    const numberOfLines = await LineCount.findOne({dateCreated}, (err, lines) => {
-        if (err) {
-            console.log('ERROR RETRIEVING LINES FROM DB:\n', err)
-            return
-        }
-        else {
-	    console.log(`ATTEMPTING TO FETCH AMOUNT OF LINES`)
-            return lines 
-        }
-    })
-    if (!numberOfLines) {
-	     return `Unable to find amount of lines said for ${dateCreated}`
+const getLineCount = async (channel, dateCreated) => {
+    dateCreated ? dateCreated = formatDate(dateCreated) : dateCreated = formatDate(new Date())
+    const lineCount = await knex('line_counts').where({ channel, dateCreated }).select('count')
+    if (lineCount.length < 1) {
+        return `Unable to find lines said for date: ${dateCreated || 'Invalid Date'}.`
     } else {
-	     return `There were ${numberOfLines.lineCount} lines said on ${numberOfLines.dateCreated}.`
+        return `There were ${lineCount[0]["count"]} lines said on ${dateCreated}`
     }
 }
 
 module.exports = {
-    getLineCount,
     setLineCount,
+    getLineCount,
     updateLineCount
 }

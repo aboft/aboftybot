@@ -2,13 +2,13 @@ const irc = require('irc')
 const jokes = require('./utils/jokes.js')
 const gtfb = require('./utils/gtfb')
 const getCovidCases = require('./utils/getCovidCases')
-const ActiveUser = require('./models/checkActiveUser')
-const {getLineCount, setLineCount, updateLineCount} = require('./utils/setLineCount')
+const { getLineCount, updateLineCount } = require('./utils/setLineCount')
+const { updateActiveUserMessage, checkUserActive } = require('./utils/getActiveUsers')
 require('dotenv').config()
-require('log-timestamp')
+require('log-timestamp')(function () { return `[${new Date().toLocaleString()}] ` })
 // Create the configuration
 var config = {
-    channels: ["#aboftytest", "#linuxmasterrace" ],
+    channels: ["#aboftytest", "#linuxmasterrace"],
     server: "irc.snoonet.net",
     botName: "aboftybot",
     realName: 'Aboft\'s Node Bot',
@@ -17,7 +17,7 @@ var config = {
     password: process.env.PASSWORD,
     options: { sasl: true },
     floodProtection: true,
-    floodProtectionDelay: 1000,
+    floodProtectionDelay: 1700,
 };
 
 var bot = new irc.Client(config.server, config.botName, config);
@@ -25,7 +25,7 @@ var bot = new irc.Client(config.server, config.botName, config);
 console.log("=================================================\n")
 console.log("		   BOOTING ABOFTYBOT		      \n")
 console.log("=================================================\n")
-
+const uptime = new Date()
 bot.connect()
 
 
@@ -64,54 +64,37 @@ bot.addListener("message", async function (from, to, text, message) {
             bot.say(to, `${from}, ${covidCases}`)
             break
         case '.lines':
-            const numOfLines = await getLineCount(text.slice(7))
+            const numOfLines = await getLineCount(to, text.slice(7))
             bot.say(to, `(${from}), ${numOfLines}`)
             break
+        case '.active':
+            const isActive = await checkUserActive(text.slice(8))
+            bot.say(to, `(${from}), ${isActive}`)
+            break;
+        case '.uptime':
+            const botUptime = (new Date() - uptime) / 1000
+            const days = Math.floor((botUptime / 60) / 60 / 24)
+            const hours = Math.floor((botUptime / 60) / 60)
+            const minutes = Math.floor((botUptime / 60) % 60)
+            const sec = Math.floor((botUptime % 60) % 60)
+            bot.say(to, `(${from}), I've been running since ${uptime.toLocaleString()} (${days} days, ${hours} hours, ${minutes} minutes, and ${sec} seconds).`)
+            break;
     }
-    (from.includes('bot')) ? false : updateLineCount()
+    if (text.toLowerCase().includes('cobol')) {
+        bot.say(to, `(${from}) Did you say COBOL? unixbird is an expert so you should ask him your questions.`)
+    }
+    updateLineCount(to)
+    updateActiveUserMessage(from.toLowerCase(), text)
 });
 
 
-bot.addListener('message', async function (from, to, text, message) {
-    // return if any messages are within 15 seconds from connecting
-    // this way we can prevent spams on join
-    if (Date.now() - bufferTime < 15000) {
-        return
-    }
-    //this references to anything starting with a period '.'
-    // grab the nickname of the user
-    // verify they already exist in the DB, if not it returns an empty array
-    const userExists = await ActiveUser.find({ user: from })
-    if (text.startsWith('.active')) {
-        const isUserActive = await ActiveUser.find({ user: from }, (err, user) => {
-            if (err) console.log(err)
-            else return user
-        })
-
-        await (isUserActive.length > 0) ? bot.say(to, `${text.split(' ')[1]} was last seen on ${isUserActive[0].created} saying "${isUserActive[0].message}"`) : bot.say(to, `I have not seen ${text.split(' ')[1]} speak here before.`)
-    }
-    if (userExists.length > 0) {
-        ActiveUser.findOneAndUpdate({ user: from }, { message: text }, (err, updatedMessage) => {
-            err ? console.log(err) : console.log('Updated message for user\n', updatedMessage) && updatedMessage.save()
-        })
-    } else {
-        ActiveUser.create({ user: from, message: text }, (err, createdUser) => {
-            err ? console.log(err) : console.log('Created user in DB for .active command\n', createdUser) && createdUser.save()
-        })
-    }
-})
-
-bot.addListener('error', function(message) {
+bot.addListener('error', function (message) {
     console.log("ERROR CRASHING DUE TO: \n ", message);
 });
 
-//disabling join messages but leaving in for future use
-//
-// bot.addListener("join", function (to, nick) {
-//     if (nick == 'aboftybot') {
-//         bot.say(to, `How in the heck did I get in here?`)
-//     } else {
-//         bot.say(to, `Come on in, ${String(nick)}! The COVID-19 is just fine!`)
-//     }
-// })
+bot.addListener("join", function (to, nick) {
+    if (nick == 'aboftybot') {
+        console.log(`${nick} HAS CONNECTED TO ${to}`)
+    } 
+})
 
