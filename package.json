@@ -13,11 +13,11 @@
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.2.0",
     "irc": "^0.5.2",
-    "knex": "^0.20.14",
+    "knex": "^0.20.15",
     "log-timestamp": "^0.3.0",
     "moment": "^2.27.0",
     "mysql": "^2.18.1",
-    "node": "^13.12.0"
+    "node": "^13.14.0"
   },
   "devDependencies": {},
   "description": ""
