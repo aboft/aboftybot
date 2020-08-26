@@ -51,7 +51,7 @@ bot.addListener("message", async function (from, to, text, message) {
         console.log(text)
         setTimeout(() => {
             bot.say(to, '.bef')
-        },1100)
+        },1000)
     }
     text = text.trim()
     // this references to the first word in each sentence
@@ -60,7 +60,7 @@ bot.addListener("message", async function (from, to, text, message) {
             if (from == 'aboft') {
                 if (text.split(' ')[1] == 'aboftybot') {
                     bot.send("NICK", `${'aboftybot'}`)
-                    bot.send("PRIVMSG", "nickserv", "identify", "b0t4d4yz")
+                    bot.send("PRIVMSG", "nickserv", "identify", process.env.PASSWORD)
                     console.log("NICK", `${text.split(' ')[1] || 'aboftybot'}`)
                     break
                 }
