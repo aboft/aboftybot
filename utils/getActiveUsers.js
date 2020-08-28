@@ -30,9 +30,9 @@ const checkUserActive = async (user) => {
         const minutes = Math.floor((lastTalk / 60) % 60)
         const sec = Math.floor((lastTalk % 60) % 60)
         if (days > 0) {
-            return `${user} was last seen talking ${maybePluralize(days, 'day')} and ${maybePluralize(hours, 'hour')} ago saying "${userExists[0]["message"]}"`
+            return `${user} was last seen talking ${maybePluralize(days, 'day')} and ${hours > 0 ? maybePluralize(hours, 'hour') : maybePluralize(minutes, 'minute') } ago saying "${userExists[0]["message"]}"`
         } else if (hours > 0) {
-            return `${user} was last seen talking ${maybePluralize(hours, 'hour')} and ${maybePluralize(minutes, 'minute')} ago saying "${userExists[0]["message"]}"`
+            return `${user} was last seen talking ${maybePluralize(hours, 'hour')} and ${minutes > 0 ? maybePluralize(minutes, 'minute') : maybePluralize(sec, 'second')} ago saying "${userExists[0]["message"]}"`
         } else {
             return `${user} was last seen talking ${maybePluralize(minutes, 'minute')} and ${maybePluralize(sec, 'second')} ago saying "${userExists[0]["message"]}"`
         }

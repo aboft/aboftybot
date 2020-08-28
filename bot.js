@@ -1,11 +1,10 @@
 const irc = require('irc')
 const jokes = require('./utils/jokes.js')
 const cobol = require('./utils/cobol.js')
-const gtfb = require('./utils/gtfb')
 const getCovidCases = require('./utils/getCovidCases')
 const { getLineCount, updateLineCount } = require('./utils/setLineCount')
 const { updateActiveUserMessage, checkUserActive } = require('./utils/getActiveUsers')
-const { createBeer, selectRandomBeer } = require('./utils/beer');
+const { createInsult, selectRandomInsult, deleteInsult } = require('./utils/gtfb');
 const inStock = require('./utils/zephyrus')
 
 require('dotenv').config()
@@ -13,10 +12,10 @@ require('log-timestamp')(function () { return `[${new Date().toLocaleString()}] 
 
 // Create the configuration
 var config = {
-    channels: ["#aboftytest", '#linuxmasterrace'],
+    channels: ["#aboftytest", "linuxmasterrace" ],
     server: "irc.snoonet.net",
     botName: "aboftybot",
-    realName: 'Aboft\'s Node Bot',
+    realName: 'aboftybot',
     userName: 'aboftybot',
     autoConnect: false,
     password: process.env.PASSWORD,
@@ -46,12 +45,13 @@ bot.addListener("message", async function (from, to, text, message) {
     if (Date.now() - bufferTime < 20000) {
         return
     }
-    if (from == 'gonzobot' && text.toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '').search(/<.quack|<.flap/) > 0){
-        console.log(text.toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '').search(/quack|flap/))
-        console.log(text)
+    if (from == 'gonzobot' && text.toLowerCase().search(/befriended a duck|shot a duck/) > 0){
+        const duccStealer = text.split(' ')[0]
+        console.log(`${duccStealer} stole your ducc!`)
+        const insult = await selectRandomInsult()
         setTimeout(() => {
-            bot.say(to, '.bef')
-        },1000)
+            bot.say(to, `(${duccStealer}), ${insult}`)
+        },500)
     }
     text = text.trim()
     // this references to the first word in each sentence
@@ -85,9 +85,6 @@ bot.addListener("message", async function (from, to, text, message) {
         case '.joke':
             bot.say(to, jokes[Math.floor(Math.random() * jokes.length)])
             break
-        case '.gtfb':
-            bot.say(to, `(${text.split(' ')[1] || from}) ${gtfb[Math.floor(Math.random() * gtfb.length)]}`)
-            break
         case '.covid':
             const covidCases = await getCovidCases(text.split(' ').slice(1).join(' '))
             bot.say(to, `${from}, ${covidCases}`)
@@ -114,15 +111,20 @@ bot.addListener("message", async function (from, to, text, message) {
             //bot.say(to, `(${from}), I heard you're learning COBOL! If you want to learn more type "/msg unixbird teach me cobol pl0x"!`);
             bot.say(to, `(${text.split(' ')[1] || from}) ${cobol[Math.floor(Math.random() * cobol.length)]}`)
             break
-        case '.beer':
-            const beer = await selectRandomBeer();
-            bot.say(to, `(${text.split(' ')[1] || from}), ${beer}`);
+        case '.gtfb':
+            const insult = await selectRandomInsult();
+            bot.say(to, `(${text.split(' ')[1] || from}), ${insult}`);
             break
-        case '.addbeer':
-            const newBeer = text.split(" ").slice(1).join(" ");
-            await createBeer(from, newBeer);
-            bot.say(to, `Created new beer: ${newBeer}`)
+        case '.addgtfb':
+            const newInsult = text.split(" ").slice(1).join(" ");
+            const addedInsult = await createInsult(from, newInsult);
+            bot.say(to, `(${from}), ${addedInsult}`)
             break;
+        case '.delgtfb':
+            const id = text.split(' ')[1]
+            const isDeleted = await deleteInsult(from, id)
+            bot.say(to, `(${from}), ${isDeleted}`)
+            break
     }
     await updateLineCount(to)
     await updateActiveUserMessage(from.toLowerCase(), text)
