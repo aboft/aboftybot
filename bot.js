@@ -3,8 +3,8 @@ const jokes = require('./utils/jokes.js')
 const cobol = require('./utils/cobol.js')
 const getCovidCases = require('./utils/getCovidCases')
 const { getLineCount, updateLineCount } = require('./utils/setLineCount')
-const { updateActiveUserMessage, checkUserActive } = require('./utils/getActiveUsers')
-const { createInsult, selectRandomInsult, deleteInsult } = require('./utils/gtfb');
+const { updateActiveUserMessage, checkUserActive, maybePluralize } = require('./utils/getActiveUsers')
+const { createInsult, selectRandomInsult, deleteInsult, showOwnedInsults, findInsult } = require('./utils/gtfb');
 const inStock = require('./utils/zephyrus')
 
 require('dotenv').config()
@@ -12,7 +12,7 @@ require('log-timestamp')(function () { return `[${new Date().toLocaleString()}] 
 
 // Create the configuration
 var config = {
-    channels: ["#aboftytest", "linuxmasterrace" ],
+    channels: ["#aboftytest",  ],
     server: "irc.snoonet.net",
     botName: "aboftybot",
     realName: 'aboftybot',
@@ -124,6 +124,14 @@ bot.addListener("message", async function (from, to, text, message) {
             const id = text.split(' ')[1]
             const isDeleted = await deleteInsult(from, id)
             bot.say(to, `(${from}), ${isDeleted}`)
+            break
+        case '.showgtfb':
+            const gtfbId = await showOwnedInsults(from)
+            bot.say(to, `(${from}), ${maybePluralize(gtfbId.length, 'ID')}: ${gtfbId}`)
+            break
+        case '.idgtfb':
+            const insultById = await findInsult(text.split(' ')[1])
+            bot.say(to, `(${from}), ${insultById}`)
             break
     }
     await updateLineCount(to)

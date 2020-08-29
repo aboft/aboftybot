@@ -60,5 +60,6 @@ const updateActiveUserMessage = async (user, message) => {
 module.exports = {
     checkUserActive,
     createActiveUser,
-    updateActiveUserMessage
+    updateActiveUserMessage,
+    maybePluralize
 }
