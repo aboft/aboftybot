@@ -83,10 +83,8 @@ bot.addListener("message", async function (from, to, text, message) {
     // this references to the first word in each sentence
 
     // Execute incoming command if it exists
-    let potentialCommand = text.split(' ')[0];
-    // Remove command prefix before check if it exists in hashmap,
-    // or store the keys with the command prefix
-    if (potentialCommand.substring(1) in commands) {
+    let potentialCommand = text.split(' ')[0].substring(1);
+    if (potentialCommand in commands) {
         commands[potentialCommand](to, from, text);
     }
     // Else maybe notice that command does not exist
