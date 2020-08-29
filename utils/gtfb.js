@@ -30,8 +30,13 @@ const selectRandomInsult = async () => {
 
 const showOwnedInsults = async (user) => {
     const ownedInsults = await knex.select('id').where('createdBy', user).from('gtfb')
-    const ownedArr = ownedInsults.map(insult => insult.id).join(', ')
-    return ownedArr
+    if (ownedInsults.length > 0) {
+        const ownedArr = ownedInsults.map(insult => insult.id).join(', ')
+        return ownedArr
+    } else {
+        return `Unable to find your IDs.`
+    }
+    
     // find a way to take out the id only and send back as
     // 1, 2, 3 when .showgtfb is done
 }

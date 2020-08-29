@@ -12,7 +12,7 @@ require('log-timestamp')(function () { return `[${new Date().toLocaleString()}] 
 
 // Create the configuration
 var config = {
-    channels: ["#aboftytest",  ],
+    channels: ["#aboftytest", "#linuxmasterrace" ],
     server: "irc.snoonet.net",
     botName: "aboftybot",
     realName: 'aboftybot',
@@ -127,7 +127,7 @@ bot.addListener("message", async function (from, to, text, message) {
             break
         case '.showgtfb':
             const gtfbId = await showOwnedInsults(from)
-            bot.say(to, `(${from}), ${maybePluralize(gtfbId.length, 'ID')}: ${gtfbId}`)
+            bot.say(to, `(${from}), ${(gtfbId.length == 1) ? "IDs" : "ID"}: ${gtfbId}`)
             break
         case '.idgtfb':
             const insultById = await findInsult(text.split(' ')[1])
