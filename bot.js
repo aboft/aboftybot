@@ -24,6 +24,32 @@ var config = {
     //floodProtectionDelay: 1700,
 };
 
+// Command functions
+function uptimeCommand() {
+    let to = arguments[0];
+    let from = arguments[1];
+    const botUptime = (new Date() - uptime) / 1000
+    const days = Math.floor((botUptime / 60) / 60 / 24)
+    const hours = Math.floor((botUptime / 60 / 60) % 24)
+    const minutes = Math.floor((botUptime / 60) % 60)
+    const sec = Math.floor((botUptime % 60) % 60)
+    bot.say(to, `(${from}), I've been running since ${uptime.toLocaleString()} (${days} days, ${hours} hours, ${minutes} minutes, and ${sec} seconds).`)
+}
+
+function linesCommand() {
+    let to = arguments[0];
+    let from = arguments[1];
+    const numOfLines = await getLineCount(to, text.slice(7))
+    bot.say(to, `(${from}), ${numOfLines}`)
+}
+
+// Command hashmap
+const commands = {
+    "uptime": uptimeCommand,
+    "lines": linesCommand,
+    // TODO convert other switch case bodies to this
+};
+
 var bot = new irc.Client(config.server, config.botName, config);
 
 console.log("=================================================")
@@ -55,85 +81,16 @@ bot.addListener("message", async function (from, to, text, message) {
     }
     text = text.trim()
     // this references to the first word in each sentence
-    switch (text.split(' ')[0]) {
-        case '.nick':
-            if (from == 'aboft') {
-                if (text.split(' ')[1] == 'aboftybot') {
-                    bot.send("NICK", `${'aboftybot'}`)
-                    bot.send("PRIVMSG", "nickserv", "identify", process.env.PASSWORD)
-                    console.log("NICK", `${text.split(' ')[1] || 'aboftybot'}`)
-                    break
-                }
-                else {
-                    bot.send("NICK", `${text.split(' ')[1]}`)
-                    break
-                }
-            }
-            break
-        case '.testmedaddy':
-            bot.say(to, `${text.split(" ")[1] || from}, I stg I'll tie you down...`)
-            break
-        case '.cough':
-            bot.say(to, `${text.split(' ')[1] || from} Get 6 feet back, you fucking heathen...`)
-            break
-        case '.gnulag':
-            bot.say(to, `${text.split(' ')[1] || from}, learn to spell gulag correctly, you pleb!`)
-            break
-        case '.alacritty':
-            bot.say(to, `${text.split(' ')[1] || from}, wtf is alacritty? All I know is I got alldemtitties.`)
-            break
-        case '.joke':
-            bot.say(to, jokes[Math.floor(Math.random() * jokes.length)])
-            break
-        case '.covid':
-            const covidCases = await getCovidCases(text.split(' ').slice(1).join(' '))
-            bot.say(to, `${from}, ${covidCases}`)
-            break
-        case '.lines':
-            const numOfLines = await getLineCount(to, text.slice(7))
-            bot.say(to, `(${from}), ${numOfLines}`)
-            break
-        case '.active':
-            const isActive = await checkUserActive(text.slice(8))
-            bot.say(to, `(${from}), ${isActive}`)
-            break;
-        case '.uptime':
-            const botUptime = (new Date() - uptime) / 1000
-            const days = Math.floor((botUptime / 60) / 60 / 24)
-            const hours = Math.floor((botUptime / 60 / 60) % 24)
-            const minutes = Math.floor((botUptime / 60) % 60)
-            const sec = Math.floor((botUptime % 60) % 60)
-            bot.say(to, `(${from}), I've been running since ${uptime.toLocaleString()} (${days} days, ${hours} hours, ${minutes} minutes, and ${sec} seconds).`)
-            break;
-        case '.cobol':
-            // this used to be zephyrus command to check in stock for G14 Zephyrus AMD Ryzen 9
-            //const isInStock = await inStock();
-            //bot.say(to, `(${from}), I heard you're learning COBOL! If you want to learn more type "/msg unixbird teach me cobol pl0x"!`);
-            bot.say(to, `(${text.split(' ')[1] || from}) ${cobol[Math.floor(Math.random() * cobol.length)]}`)
-            break
-        case '.gtfb':
-            const insult = await selectRandomInsult();
-            bot.say(to, `(${text.split(' ')[1] || from}), ${insult}`);
-            break
-        case '.addgtfb':
-            const newInsult = text.split(" ").slice(1).join(" ");
-            const addedInsult = await createInsult(from, newInsult);
-            bot.say(to, `(${from}), ${addedInsult}`)
-            break;
-        case '.delgtfb':
-            const id = text.split(' ')[1]
-            const isDeleted = await deleteInsult(from, id)
-            bot.say(to, `(${from}), ${isDeleted}`)
-            break
-        case '.showgtfb':
-            const gtfbId = await showOwnedInsults(from)
-            bot.say(to, `(${from}), ${(gtfbId.length == 1) ? "IDs" : "ID"}: ${gtfbId}`)
-            break
-        case '.idgtfb':
-            const insultById = await findInsult(text.split(' ')[1])
-            bot.say(to, `(${from}), ${insultById}`)
-            break
+
+    // Execute incoming command if it exists
+    let potentialCommand = text.split(' ')[0];
+    // Remove command prefix before check if it exists in hashmap,
+    // or store the keys with the command prefix
+    if (potentialCommand.substring(1) in commands) {
+        commands[potentialCommand](to, from, text);
     }
+    // Else maybe notice that command does not exist
+
     await updateLineCount(to)
     await updateActiveUserMessage(from.toLowerCase(), text)
 });
