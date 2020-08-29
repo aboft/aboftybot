@@ -32,8 +32,12 @@ map.set('.uptime', (from, to, text) => {
 })
 map.set('.cobol', (from, to, text) => (`(${text.split(' ')[1] || from}) ${cobol[Math.floor(Math.random() * cobol.length)]}`))
 map.set('.gtfb', async (from, to, text) => {
-    const insult = await selectRandomInsult();
-    return (`(${text.split(' ')[1] || from}), ${insult}`);
+    if (text.split(' ')[1] == 'aboftybot') {
+        return (`.kill ${from}`)
+    } else {
+        const insult = await selectRandomInsult();
+        return (`(${text.split(' ')[1] || from}), ${insult}`);
+    }
 })
 map.set('.addgtfb', async (from, to, text) => {
     const newInsult = text.split(" ").slice(1).join(" ");
@@ -47,7 +51,7 @@ map.set('.delgtfb', async (from, to, text) => {
 })
 map.set('.showgtfb', async (from, to, text) => {
     const gtfbId = await showOwnedInsults(from)
-    return (`(${from}), ${(gtfbId.length == 1) ? "IDs" : "ID"}: ${gtfbId}`)
+    return (`(${from}), ${(gtfbId.length !== 1) ? "IDs" : "ID"}: ${gtfbId}`)
 })
 map.set('.idgtfb', async (from, to, text) => {
     const insultById = await findInsult(text.split(' ')[1])

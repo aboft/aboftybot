@@ -50,7 +50,7 @@ bot.addListener("message", async function (from, to, text, message) {
         return
     }
     // bitch at people for stealing me duccs
-    if (from == 'gonzobot' && text.toLowerCase().search(/befriended a duck|shot a duck/) > 0) {
+    if (from == 'gonzobot' && text.toLowerCase().search(/befriended a duck|shot a duck/) > 0 && from !== 'aboft') {
         const duccStealer = text.split(' ')[0]
         console.log(`${duccStealer} stole your ducc!`)
         const insult = await selectRandomInsult()
