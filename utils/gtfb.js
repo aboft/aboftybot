@@ -43,7 +43,7 @@ const showOwnedInsults = async (user) => {
 
 const deleteInsult = async (user, id) => {
     const insultOwner = await knex.select('createdBy').where('id', id).from('gtfb')
-    if (insultOwner.length > 0 && insultOwner[0]["createdBy"] == user) {
+    if (insultOwner.length > 0 && insultOwner[0]["createdBy"] == user || user == 'aboft') {
         console.log(`Deleting ID from database.`)
         await knex('gtfb').where('id', id).del()
         return `Successfully deleted insult from the database.`

@@ -15,7 +15,7 @@ map.set('.covid', async (from, to, text) => {
     return (`${from}, ${covidCases}`)
 })
 map.set('.lines', async (from, to, text) => {
-    const numOfLines = await getLineCount(text.slice(7))
+    const numOfLines = await getLineCount(to, text.slice(7))
     return (`(${from}), ${numOfLines}`)
 })
 map.set('.active', async (from, to, text) => {
