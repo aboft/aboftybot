@@ -1,7 +1,7 @@
 const irc = require('irc')
 const map = require('./utils/commandMap')
 const { selectRandomInsult } = require('./utils/gtfb')
-const { updateLineCount } = require('./utils/setLineCount')
+const { updateLineCount, checkLineCount } = require('./utils/setLineCount')
 const { updateActiveUserMessage } = require('./utils/getActiveUsers')
 require('dotenv').config()
 require('log-timestamp')(function () { return `[${new Date().toLocaleString()}] ` })
@@ -50,7 +50,7 @@ bot.addListener("message", async function (from, to, text, message) {
         return
     }
     // bitch at people for stealing me duccs
-    if (from == 'gonzobot' && text.toLowerCase().search(/befriended a duck|shot a duck/) > 0 && from !== 'aboft') {
+    if (from == 'gonzobot' && text.toLowerCase().search(/befriended a duck|shot a duck/) > 0 && text.split(' ')[0] !== 'aboft') {
         const duccStealer = text.split(' ')[0]
         console.log(`${duccStealer} stole your ducc!`)
         const insult = await selectRandomInsult()
@@ -66,6 +66,8 @@ bot.addListener("message", async function (from, to, text, message) {
     }
     await updateLineCount(to)
     await updateActiveUserMessage(from.toLowerCase(), text)
+    const numberOfLines = await checkLineCount(to);
+    if (parseInt(numberOfLines) % 1000 == 0) bot.say(to, `Woo!, we hit ${numberOfLines} so far, today!`);
 });
 
 bot.addListener('kick', function (channel, nick, by, reason) {

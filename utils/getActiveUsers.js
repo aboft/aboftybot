@@ -48,9 +48,10 @@ const createActiveUser = async (user, message) => {
 }
 
 const updateActiveUserMessage = async (user, message) => {
-    const isUserActive = checkUserActive(user)
+    const isUserActive = await knex('active_user').where({ user }).select('message', 'lastModified') 
+    console.log(isUserActive)
     if (isUserActive.length < 1) {
-        await createActiveUser(user)
+        await createActiveUser(user, message)
         return
     }
     console.log(`UPDATING MESSAGE FOR USER ${user} IN active_user TABLE`)

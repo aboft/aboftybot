@@ -22,10 +22,21 @@ const createInsult = async (user, insult) => {
     }
 }
 
-const selectRandomInsult = async () => {
-    const insult = await knex.select('insult').from('gtfb').orderByRaw('rand()').limit(1);
-    console.log(`SUCCESSFULLY RETRIEVED ${insult[0]["insult"]} FROM aboftybot.gtfb`)
-    return `${insult[0]["insult"]}`
+const selectRandomInsult = async (id) => {
+    if (parseInt(id)) {
+        const insult = await knex.select('insult').where({id: parseInt(id)}).from('gtfb');
+        console.log(`SUCCESSFULLY RETRIEVED insult FROM aboftybot.gtfb`)
+        if (insult.length > 0) {
+            return `${insult[0]["insult"]}`
+        } else {
+            return `Unable to locate ID.`
+        }
+    } else {
+        const insult = await knex.select('insult').from('gtfb').orderByRaw('rand()').limit(1);
+        console.log(`SUCCESSFULLY RETRIEVED ${insult[0]["insult"]} FROM aboftybot.gtfb`)
+        return `${insult[0]["insult"]}`
+    }
+    
 }
 
 const showOwnedInsults = async (user) => {

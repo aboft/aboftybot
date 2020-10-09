@@ -30,36 +30,47 @@ function formatDate(date) {
 
 
 const setLineCount = async (channel) => {
-    const createChannelCount = await knex('line_counts').insert({ channel, count: 1, dateCreated: formatDate(new Date()), lastModified: null })
+    const createChannelCount = await knex('line_counts').insert({ channel: channel, count: 1, dateCreated: formatDate(new Date()), lastModified: null })
     console.log(`CREATED NEW ENTRY IN DB FOR ${channel} ON ${formatDate(new Date())}`)
 };
 
 const updateLineCount = async (channel) => {
-    let channelExists = await knex('line_counts').where({ channel: '#linuxmasterrace', dateCreated: formatDate(new Date()) }).select('channel')
+    let channelExists = await knex('line_counts').where({ channel, dateCreated: formatDate(new Date()) }).select('channel')
     if (channelExists.length < 1) {
         console.log(`${channel} NOT FOUND IN DB. CREATING NEW ENTRY FOR ${channel} ON ${formatDate(new Date())}`)
         setLineCount(channel)
     }
     else {
-        await knex('line_counts').where({channel: '#linuxmasterrace', dateCreated: formatDate(new Date())}).increment('count', 1)
+        await knex('line_counts').where({channel, dateCreated: formatDate(new Date())}).increment('count', 1)
         console.log(`UPDATING LINE COUNT FOR ${channel} ON ${formatDate(new Date())}`)
     }
 }
 
 const getLineCount = async (channel, dateCreated) => {
-    console.log(dateCreated)
-    dateCreated ? dateCreated = formatDate(dateCreated) : dateCreated = formatDate(new Date())
-    console.log(dateCreated)
-    const lineCount = await knex('line_counts').where({ channel, dateCreated }).select('count')
+    let dateSearch;
+    dateCreated ? dateSearch = formatDate(dateCreated) : dateSearch = formatDate(new Date())
+    const lineCount = await knex('line_counts').where({ channel, dateCreated: dateSearch }).select('count')
     if (lineCount.length < 1) {
         return `Unable to find lines said for date: ${dateCreated || 'Invalid Date'}.`
     } else {
-        return `There were ${lineCount[0]["count"]} lines said on ${dateCreated}`
+        return `There were ${lineCount[0]["count"]} lines said on ${dateSearch}`
     }
+}
+
+const checkLineCount = async (channel) => {
+	let numOfLines;
+	const numOfLinesQuery = await knex('line_counts').where({channel: channel, dateCreated: formatDate(new Date())})
+	if (numOfLinesQuery.length > 0) {
+		numOfLines = numOfLinesQuery[0]["count"]
+	} else {
+		numOfLines = false;
+	}
+	return numOfLines;
 }
 
 module.exports = {
     setLineCount,
     getLineCount,
-    updateLineCount
+    updateLineCount,
+    checkLineCount,
 }

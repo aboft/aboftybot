@@ -34,10 +34,16 @@ let map = new Map([
     }],
     ['.gtfb', async (from, to, text) => {
         if (text.split(' ')[1] == 'aboftybot') {
-            return (`.kill ${from}`)
+            return (`(${from}), No.`)
         } else {
-            const insult = await selectRandomInsult();
-            return (`(${text.split(' ')[1] || from}), ${insult}`);
+            if (parseInt(text.split(' ')[2])) {
+                const insult = await selectRandomInsult(parseInt(text.split(' ')[2]));
+                return (`(${text.split(' ')[1] || from}), ${insult}`);
+            }else {
+                const insult = await selectRandomInsult();
+                return (`(${text.split(' ')[1] || from}), ${insult}`);
+            }
+            
         }
     }],
     ['.addgtfb', async (from, to, text) => {
@@ -57,6 +63,12 @@ let map = new Map([
     ['.idgtfb', async (from, to, text) => {
         const insultById = await findInsult(text.split(' ')[1])
         return (`(${from}), ${insultById}`)
+    }],
+    ['.shrug', (from, to, text) => {
+        return "¯\\_(ツ)_/¯"
+    }],
+    ['.hug', (from, to, text) => {
+	return `${text.split(' ')[1] || from}, (っ◕‿◕)っ`
     }]
 ])
 
