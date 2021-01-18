@@ -20,7 +20,7 @@ map.set(".nick", async (from, to, text) => {
 
 // Create the configuration
 var config = {
-  channels: ["#aboftytest", "#linuxmasterrace"],
+  channels: ["#linuxmasterrace"],
   server: "irc.snoonet.net",
   botName: "aboftybot",
   realName: "aboftybot",

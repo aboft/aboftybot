@@ -82,11 +82,14 @@ const getMaxLines = async (channel) => {
   const maxCount = await knex("line_counts")
     .select()
     .orderBy("count", "desc")
-    .limit(1);
+    .limit(5);
   if (maxCount.length < 1) {
     return `Unable to retrieve the max count.`;
   } else {
-    return `Count: ${maxCount[0]["count"]}    Date: ${formatDate(maxCount[0]["dateCreated"])}`;
+    const mappedLines = maxCount
+      .map((count) => `${formatDate(count.dateCreated)}: ${count.count}`)
+      .join(", ");
+    return `${mappedLines}`;
   }
 };
 

@@ -61,7 +61,7 @@ let map = new Map([
     },
   ],
   [
-    ".toplines",
+    ".topl",
     async (from, to, text) => {
       const maxCount = await getMaxLines(to);
       return `(${from}), ${maxCount}`;
